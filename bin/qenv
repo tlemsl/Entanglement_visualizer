@@ -1,0 +1,47 @@
+#!/bin/sh
+
+set -e 
+Project_name=Entanglement_visualizer
+
+Image_name=qenv_image
+Container_name=qenv
+
+Container_ws=/home/qtuser/Entanglement_visualizer
+
+docker_run()
+{
+	# MAC display port forwarding.
+	if [[ "$OSTYPE" == "darwin"* ]]; then
+		echo "Your host OS is mac. enabling socat"
+        	socat TCP-LISTEN:6000,reuseaddr,fork UNIX-CLIENT:\"$DISPLAY\" &&
+		Display_env=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}'):0
+		
+		echo Done
+	elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+		Display_env=$DISPLAY
+	fi
+	if [ ! "$(docker ps -a -q -f name=$Container_name)" ]; then
+    		if [ "$(docker ps -aq -f status=exited -f name=$Container_name)" ]; then
+        		# cleanup
+        		docker rm $Container_name
+    		fi
+    		# run your container
+    		docker run -itd --name $Container_name \
+		-v /tmp/.X11-unix:/tmp/.X11-unix \
+		-e DISPLAY=$Display_env \
+		$Image_name
+	fi
+	
+}
+
+
+docker_build()
+{
+	docker build -t $Image_name:$1 Docker/.
+}
+echo $2
+if [[ "$1" == "build" ]]; then
+	docker_build $2
+elif [[ "$1" == "run" ]]; then
+	docker_run
+fi
