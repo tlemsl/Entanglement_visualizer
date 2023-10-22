@@ -1,64 +1,110 @@
-#!/bin/sh
-set -e 
-Project_name=Entanglement_visualizer
-Image_name=qenv_image
-Container_name=qenv
-Container_ws=/home/qtuser/Entanglement_visualizer
+#!/bin/bash
+set -e
 
-docker_run()
-{
-	# MAC display port forwarding.
-	if [[ "$OSTYPE" == "darwin"* ]]; then
-		echo "Your host OS is mac. enabling socat"
-        	socat TCP-LISTEN:6000,reuseaddr,fork UNIX-CLIENT:\"$DISPLAY\" &&
-		Display_env=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}'):0
-		
-		echo Done
-	elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
-		Display_env=$DISPLAY
-	fi
-	if [ ! "$(docker ps -a -q -f name=$Container_name)" ]; then
-    		if [ "$(docker ps -aq -f status=exited -f name=$Container_name)" ]; then
-        		# cleanup
-        		docker rm $Container_name
-    		fi
-    		# run your container
-    		docker run -itd --name $Container_name \
-		-v /tmp/.X11-unix:/tmp/.X11-unix \
-		-e DISPLAY=$Display_env \
-		$Image_name
-	fi
-	
+# Configuration:
+Project_name="Entanglement_visualizer"
+Image_name="qenv_image"
+Tag="$(whoami)"
+Container_name="qenv"
+Container_ws="/home/qtuser/$Project_name"
+
+# Function: docker_run
+# Description: Runs a Docker container with the specified image and config.
+# Args: $1 - The image tag to use
+docker_run() {
+    # MAC display port forwarding.
+    Display_env=""
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+        echo "Your host OS is macOS. Enabling socat..."
+        socat TCP-LISTEN:6000,reuseaddr,fork UNIX-CLIENT:\"$DISPLAY\" &&
+        Display_env=$(ifconfig en0 | grep inet | awk '$1=="inet" {print $2}'):0
+        echo "Done"
+    elif [[ "$OSTYPE" == "linux-gnu"* ]]; then
+        Display_env=$DISPLAY
+    fi
+
+    if [ "$(docker ps -a -q -f name=$Container_name)" ]; then
+        docker rm -f $Container_name
+    fi
+
+    docker run -itd --name $Container_name \
+        -v /tmp/.X11-unix:/tmp/.X11-unix \
+        -e DISPLAY=$DISPLAY \
+        -v $QENVWS:$Container_ws \
+        $Image_name:$1
 }
 
+# Function: docker_exec
+# Description: Executes a command inside the running Docker container. If
+# the container is not running, it starts the container first.
+docker_exec() {
+    # Check if the Docker container is running
+    if [ "$(docker ps -q -f name=$Container_name)" ]; then
+        # Container is running; execute the command
+        docker exec -it -u=qtuser $Container_name bash
+    else
+        # Container is not running; start it and then execute the command
+        echo "The '$Container_name' container is not running. Starting the container..."
+        docker_run $1
+    fi
+    docker exec -it -u=qtuser $Container_name bash
+}
 
+# Function: docker_build
+# Description: Builds a Docker image for the project with the specified image
+# tag.
+# Args: $1 - The image tag to use
 docker_build() {
-	docker build -t $Image_name:$1 $QENVWS/Docker/.
+    docker build -t $Image_name:$1 $QENVWS/Docker/.
 }
 
+# Function: show_help
+# Description: Displays usage information for the script.
+show_help() {
+    echo "Usage: $0 <action> [arguments]"
+    echo "Actions:"
+    echo "  build <image_tag>  - Build a Docker image with the specified image tag."
+    echo "                      (Default: host name $Tag)"
+    echo "  run <image_tag>    - Run a Docker container with the specified image tag."
+    echo "                      (Default: host name $Tag)"
+    echo "  exec               - Execute a command inside the running Docker container."
+	echo "                      (Default: host name $Tag)"
+    echo "  help               - Display this help message."
+}
+
+# Main script logic:
 # Check if the script was provided at least one argument
 if [ "$#" -lt 1 ]; then
-    echo "Usage: $0 <action> [arguments]"
-    exit 1
+    docker_exec $Tag
 fi
 
 # Assign the first argument to the "action" variable
 action="$1"
 
-# Use an "if" statement to perform different actions based on the "action" variable
 if [ "$action" = "build" ]; then
     if [ "$#" -lt 2 ]; then
-        echo "Usage: $0 build <build_argument>"
+        docker_build $Tag
         exit 1
     fi
-    docker_build "$2" # Pass the second argument as the build_argument
+    docker_build "$2" # Pass the second argument as the image tag
 elif [ "$action" = "run" ]; then
-    # Action: Run something
-    echo "Performing run action..."
-    # Add your run logic here
+    if [ "$#" -lt 2 ]; then
+        docker_run $Tag
+        exit 1
+    fi
+    docker_run "$2"
+elif [ "$action" = "exec" ]; then
+    echo "Performing 'exec' action..."
+    if [ "$#" -lt 2 ]; then
+        docker_exec $Tag
+        exit 1
+    fi
+	docker_exec "$2"
+elif [ "$action" = "help" ]; then
+    show_help
 else
     # Action: Unrecognized
     echo "Unrecognized action: $action"
-    echo "Usage: $0 <build|run> [arguments]"
+    show_help
     exit 1
 fi
