@@ -9,7 +9,7 @@ WS_PATH="/opt/$PROJECT_NAME"
 echo "Your project path is $PACKAGE_PATH"
 echo "Start setup"
 
-echo "git commit templete setup"
+echo "git commit template setup"
 git config --local commit.template $PACKAGE_PATH/template.tmpl
 
 echo "Project setup"
