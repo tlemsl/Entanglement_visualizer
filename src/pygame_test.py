@@ -1,9 +1,11 @@
 import pygame
 import sys
 import os
+import math
 
 os.environ['SDL_VIDEODRIVER'] = 'x11'
 # 초기화
+#test
 pygame.init()
 
 # 화면 크기 설정
