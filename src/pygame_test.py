@@ -1,7 +1,7 @@
 import pygame
 import sys
 import os
-import math
+
 
 os.environ['SDL_VIDEODRIVER'] = 'x11'
 # 초기화
