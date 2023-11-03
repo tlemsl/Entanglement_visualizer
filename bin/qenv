@@ -28,6 +28,7 @@ docker_run() {
     fi
 
     docker run -itd --name $Container_name \
+        --privileged \
         -v /tmp/.X11-unix:/tmp/.X11-unix \
         -e DISPLAY=$DISPLAY \
         -v $QENVWS:$Container_ws \
