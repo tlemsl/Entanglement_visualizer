@@ -136,6 +136,26 @@ class X(Base):
         self._base_mat = np.array([[0, 1], [1, 0]], dtype=np.complex128)
         self._mat = self._form_matrix()
 
+class Y(Base):
+    """Class representing an Y gate.
+
+    This class inherits from the Base class and represents the Y gate.
+
+    Attributes:
+        _base_mat (numpy.ndarray): The base matrix representing the Y gate.
+    """
+
+    def __init__(self, n: int = 1, target: int = 0) -> None:
+        """Initialize an X gate.
+
+        Args:
+            n (int, optional): The number of qubits (default is 1).
+            target (int, optional): The target qubit index (default is 0).
+        """
+        super().__init__(n, target)
+        self._base_mat = np.array([[0, -1.j], [1.j, 0]], dtype=np.complex128)
+        self._mat = self._form_matrix()
+
 class Z(Base):
     """Class representing a Z gate.
 
