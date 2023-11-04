@@ -21,6 +21,7 @@ import qubit.qubit as qb
 
 Identity_matrix = np.identity(2, dtype=np.complex128)
 
+
 class Base(object):
     """Base class representing a quantum gate.
 
@@ -32,7 +33,7 @@ class Base(object):
         _base_mat (numpy.ndarray): The base matrix representing the gate.
     """
 
-    def __init__(self, n: int = 1, target: int = 0) -> None:
+    def __init__(self, n: int = 1, target: int = 0, control: int = -1) -> None:
         """Initialize a base quantum gate.
 
         Args:
@@ -72,7 +73,7 @@ class Base(object):
             int: The number of qubits.
         """
         return self._n
-    
+
     def __str__(self) -> str:
         return self._mat.__str__()
 
@@ -116,6 +117,7 @@ class Base(object):
                 ret = np.kron(ret, Identity_matrix)
         return ret
 
+
 class X(Base):
     """Class representing an X gate.
 
@@ -135,6 +137,7 @@ class X(Base):
         super().__init__(n, target)
         self._base_mat = np.array([[0, 1], [1, 0]], dtype=np.complex128)
         self._mat = self._form_matrix()
+
 
 class Y(Base):
     """Class representing an Y gate.
@@ -156,6 +159,7 @@ class Y(Base):
         self._base_mat = np.array([[0, -1.j], [1.j, 0]], dtype=np.complex128)
         self._mat = self._form_matrix()
 
+
 class Z(Base):
     """Class representing a Z gate.
 
@@ -176,6 +180,7 @@ class Z(Base):
         self._base_mat = np.array([[1, 0], [0, -1]], dtype=np.complex128)
         self._mat = self._form_matrix()
 
+
 class H(Base):
     """Class representing an H gate.
 
@@ -194,5 +199,6 @@ class H(Base):
         """
         super().__init__(n, target)
         temp = 1 / math.sqrt(2)
-        self._base_mat = np.array([[temp, temp], [temp, -temp]], dtype=np.complex128)
+        self._base_mat = np.array([[temp, temp], [temp, -temp]],
+                                  dtype=np.complex128)
         self._mat = self._form_matrix()
