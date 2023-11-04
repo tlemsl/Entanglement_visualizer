@@ -4,7 +4,9 @@ import numpy as np
 import qubit.gates as qg
 import qubit.qubit as qb
 
+
 class TestQuantumGates(unittest.TestCase):
+
     def test_base_gate(self):
         base_gate = qg.Base(2, 0)
         qubit = qb.Qubit(2, 0)
@@ -31,7 +33,7 @@ class TestQuantumGates(unittest.TestCase):
         qubit = qb.Qubit(1, 0)
         result = h_gate * qubit
         expected = qb.Qubit()
-        expected.mat = np.array([[1],[1]], dtype=np.complex128) / math.sqrt(2)
+        expected.mat = np.array([[1], [1]], dtype=np.complex128) / math.sqrt(2)
         self.assertTrue(np.allclose(result.mat, expected.mat))
 
     def test_multiple_gates(self):
@@ -43,8 +45,11 @@ class TestQuantumGates(unittest.TestCase):
         result = z_gate * h_gate * x_gate * qubit
 
         expected = qb.Qubit(2, 0)
-        expected.mat = np.array([[0.70710678+0.j], [-0.70710678+0.j], [0], [0]], dtype=np.complex128)
+        expected.mat = np.array(
+            [[0.70710678 + 0.j], [-0.70710678 + 0.j], [0], [0]],
+            dtype=np.complex128)
         self.assertTrue(np.allclose(result.mat, expected.mat))
-        
+
+
 if __name__ == '__main__':
     unittest.main()

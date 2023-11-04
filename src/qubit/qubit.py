@@ -14,6 +14,7 @@ Classes:
 import math
 import numpy as np
 
+
 class Qubit:
     """A class representing a quantum qubit.
 
@@ -44,7 +45,7 @@ class Qubit:
             raise ValueError("Value must be smaller than 2^n")
 
         self._n = n
-        self._mat = np.zeros((2 ** n, 1), dtype=np.complex128)
+        self._mat = np.zeros((2**n, 1), dtype=np.complex128)
         self._mat[v, 0] = 1
 
     def tensor_product(self, other):
