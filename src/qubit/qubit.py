@@ -110,7 +110,11 @@ class Qubit:
 
     def __str__(self) -> str:
         """Return a string representation of the qubit state."""
-        return self._mat.__str__()
+        ret = ""
+        for i in range(2**self._n):
+            if self.mat[i, 0]:
+                ret += f"{self.mat[i,0]}|{i}>"
+        return ret
 
     def __len__(self) -> int:
         """Return the number of qubits in the state."""

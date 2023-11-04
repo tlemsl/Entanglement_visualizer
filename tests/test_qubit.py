@@ -29,10 +29,28 @@ class TestQubit(unittest.TestCase):
             q1.tensor_product(2)
 
     def test_str(self):
+        """Test string representation of a qubit."""
+        # This qubit is in state |3>, which corresponds to binary |11>
         q = qb.Qubit(2, 3)
-        expected_str = "[[0.+0.j]\n [0.+0.j]\n [0.+0.j]\n [1.+0.j]]"
+        expected_str = "(1+0j)|3>"
         actual_str = str(q)
         self.assertEqual(actual_str, expected_str)
+
+        # This qubit is in a superposition state with non-zero amplitudes
+        # for basis states |1> and |2>. Let's simulate it by adding two qubits.
+        q1 = qb.Qubit(2, 1)  # |01>
+        q2 = qb.Qubit(2, 2)  # |10>
+        q_super = q1 + q2
+        expected_super_str = "(1+0j)|1>(1+0j)|2>"
+        actual_super_str = str(q_super)
+        self.assertEqual(actual_super_str, expected_super_str)
+
+        # A qubit with all zero amplitudes should return an empty string
+        q_zero = qb.Qubit(2)
+        expected_zero_str = "(1+0j)|0>"
+        actual_zero_str = str(q_zero)
+        self.assertEqual(actual_zero_str, expected_zero_str)
+
 
     def test_mat_property(self):
         q = qb.Qubit(4, 3)  # 4 qubits
