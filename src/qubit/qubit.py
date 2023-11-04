@@ -139,3 +139,8 @@ class Qubit:
             raise ValueError("Qubit must be a column vector!")
         self._mat = data
         self._n = int(math.sqrt(self._mat.shape[0]))
+
+    @property
+    def T(self):
+        """Getter for the qubit's conjugate transpose (Hermitian conjugate)"""
+        return self._mat.conjugate().T
