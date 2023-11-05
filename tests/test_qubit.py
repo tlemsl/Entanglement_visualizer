@@ -23,16 +23,9 @@ class TestQubit(unittest.TestCase):
         """Test tensor product of two qubits for correctness."""
         q1 = qb.Qubit(2, 1)  # |01>
         q2 = qb.Qubit(2, 2)  # |10>
-<<<<<<< Updated upstream
         q3 = q1 * q2
         expected_mat = np.zeros((16, 1), dtype=np.complex128)
         expected_mat[6, 0] = 1
-=======
-        q3 = q1 * q2  # Expected: |0110>
-        expected_mat = np.array([[0], [0], [0], [0], [0], [0], [1], [0], [0],
-                                 [0], [0], [0], [0], [0], [0], [0]],
-                                dtype=np.complex128)
->>>>>>> Stashed changes
         self.assertTrue(np.allclose(q3.mat, expected_mat))
 
         with self.assertRaises(TypeError):
@@ -64,7 +57,6 @@ class TestQubit(unittest.TestCase):
 
 
     def test_mat_property(self):
-<<<<<<< Updated upstream
         """Test qubit's state matrix property getters/setters."""
         q = qb.Qubit(4, 3)
         new_mat = np.zeros((16, 1), dtype=np.complex128)
@@ -72,16 +64,6 @@ class TestQubit(unittest.TestCase):
         q.mat = new_mat
         self.assertTrue(np.allclose(q.mat, new_mat))
         self.assertEqual(len(q), 4)
-=======
-        q = qb.Qubit(4, 3)  # 4 qubits
-        new_mat = np.array([[1], [0], [0], [0], [0], [0], [0], [0], [0], [0],
-                            [0], [0], [0], [0], [0], [0]],
-                           dtype=np.complex128)
-        q.mat = new_mat
-        self.assertTrue(np.allclose(q.mat, new_mat))
-        self.assertEqual(len(q),
-                         4)  # Ensure the number of qubits is a power of 2
->>>>>>> Stashed changes
 
         with self.assertRaises(ValueError):
             q.mat = np.array([[1, 0], [0, 1]], dtype=np.complex128)
@@ -91,12 +73,8 @@ class TestQubit(unittest.TestCase):
         q1 = qb.Qubit(2, 1)  # |01>
         q2 = qb.Qubit(2, 2)  # |10>
         q_sum = q1 + q2
-<<<<<<< Updated upstream
         expected_mat = np.array([[0], [1], [1], [0]],
                                 dtype=np.complex128)
-=======
-        expected_mat = np.array([[0], [1], [1], [0]], dtype=np.complex128)
->>>>>>> Stashed changes
         self.assertTrue(np.allclose(q_sum.mat, expected_mat))
 
         with self.assertRaises(TypeError):
@@ -107,17 +85,12 @@ class TestQubit(unittest.TestCase):
         q1 = qb.Qubit(2, 2)  # |10>
         q2 = qb.Qubit(2, 2)  # |10>
         q_diff = q1 - q2
-<<<<<<< Updated upstream
         expected_mat = np.zeros((4, 1), dtype=np.complex128)
-=======
-        expected_mat = np.array([[0], [0], [0], [0]], dtype=np.complex128)
->>>>>>> Stashed changes
         self.assertTrue(np.allclose(q_diff.mat, expected_mat))
 
         with self.assertRaises(TypeError):
             q1 - 2
 
-<<<<<<< Updated upstream
     def test_Conjugate_function(self):
         """Test the T property for correct conjugate transpose."""
         qubit = qb.Qubit(n=1, v=0)
@@ -127,8 +100,6 @@ class TestQubit(unittest.TestCase):
         self.assertTrue(np.array_equal(conjugate_transpose,
                                        expected_output),
                         "T function does not produce correct result.")
-=======
->>>>>>> Stashed changes
 
 if __name__ == '__main__':
     unittest.main()

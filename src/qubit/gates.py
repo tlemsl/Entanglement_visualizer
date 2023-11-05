@@ -2,7 +2,7 @@
 Quantum Gates and Operations
 
 This module defines quantum gates and operations for quantum computing. It includes the
-base quantum gate class `Base`, X gate `X`, Z gate `Z`, and Hadamard gate `H`.
+base quantum gate class `Base`, X gate `X`, Y gate `Y`, Z gate `Z`, and Hadamard gate `H`.
 
 Author: Minjong Kim
 Email: tlemsl@dgist.ac.kr
@@ -11,6 +11,7 @@ Website: https://github.com/tlemsl/Entanglement_visualizer
 Classes:
     Base: Base class representing a quantum gate.
     X: Class representing an X gate.
+    Y: Class representing a Y (Pauli-Y) gate.
     Z: Class representing a Z gate.
     H: Class representing an H (Hadamard) gate.
 """
@@ -20,6 +21,8 @@ import numpy as np
 import qubit.qubit as qb
 
 Identity_matrix = np.identity(2, dtype=np.complex128)
+Base0 = np.array([[1, 0], [0, 0]], dtype=np.complex128)
+Base1 = np.array([[0, 0], [0, 1]], dtype=np.complex128)
 
 
 class Base(object):
@@ -39,6 +42,8 @@ class Base(object):
         Args:
             n (int, optional): The number of qubits (default is 1).
             target (int, optional): The target qubit index (default is 0).
+            control (int, optional): The index of the control qubit
+                                     (default is -1, which means uncontrolled).
 
         Raises:
             ValueError: If the target qubit is not smaller than n.
@@ -48,6 +53,7 @@ class Base(object):
         self._base_mat = Identity_matrix
         self._n = n
         self._target = target
+        self._control = control
         self._mat = self._form_matrix()
 
     def __mul__(self, other):
@@ -57,7 +63,8 @@ class Base(object):
             other (Base or qb.Qubit): The other gate or qubit to multiply with.
 
         Returns:
-            Base or qb.Qubit: A new gate or qubit representing the result of the multiplication.
+            Base or qb.Qubit: A new gate or qubit representing 
+                              the result of the multiplication.
         """
         if isinstance(other, qb.Qubit):
             ret = qb.Qubit()
@@ -108,13 +115,35 @@ class Base(object):
             numpy.ndarray: The matrix representation of the gate.
         """
         ret = Identity_matrix
-        if self._target == (self._n - 1):
-            ret = self._base_mat
-        for i in range(self._n - 2, -1, -1):
-            if i == self._target:
-                ret = np.kron(ret, self._base_mat)
-            else:
-                ret = np.kron(ret, Identity_matrix)
+        if self._control == -1:
+            if self._target == (self._n - 1):
+                ret = self._base_mat
+            for i in range(self._n - 2, -1, -1):
+                if i == self._target:
+                    ret = np.kron(ret, self._base_mat)
+                else:
+                    ret = np.kron(ret, Identity_matrix)
+
+        else:
+            base0 = base1 = Identity_matrix
+            if self._target == self._n - 1:
+                base0 = Identity_matrix
+                base1 = self._base_mat
+            elif self._control == self._n - 1:
+                base0 = Base0
+                base1 = Base1
+            for i in range(self._n - 2, -1, -1):
+                if i == self._target:
+                    base0 = np.kron(base0, Identity_matrix)
+                    base1 = np.kron(base1, self._base_mat)
+                elif i == self._control:
+                    base0 = np.kron(base0, Base0)
+                    base1 = np.kron(base1, Base1)
+                else:
+                    base0 = np.kron(base0, Identity_matrix)
+                    base1 = np.kron(base1, Identity_matrix)
+            ret = base0 + base1
+
         return ret
 
 
@@ -127,14 +156,17 @@ class X(Base):
         _base_mat (numpy.ndarray): The base matrix representing the X gate.
     """
 
-    def __init__(self, n: int = 1, target: int = 0) -> None:
-        """Initialize an X gate.
+    def __init__(self, n: int = 1, target: int = 0, control: int = -1) -> None:
+        """
+        Initialize an X gate.
 
         Args:
             n (int, optional): The number of qubits (default is 1).
             target (int, optional): The target qubit index (default is 0).
+            control (int, optional): The index of the control qubit (
+                                     default is -1, which means uncontrolled).
         """
-        super().__init__(n, target)
+        super().__init__(n, target, control)
         self._base_mat = np.array([[0, 1], [1, 0]], dtype=np.complex128)
         self._mat = self._form_matrix()
 
@@ -148,14 +180,17 @@ class Y(Base):
         _base_mat (numpy.ndarray): The base matrix representing the Y gate.
     """
 
-    def __init__(self, n: int = 1, target: int = 0) -> None:
-        """Initialize an X gate.
+    def __init__(self, n: int = 1, target: int = 0, control: int = -1) -> None:
+        """
+        Initialize a Y gate.
 
         Args:
             n (int, optional): The number of qubits (default is 1).
             target (int, optional): The target qubit index (default is 0).
+            control (int, optional): The index of the control qubit 
+                                     (default is -1, which means uncontrolled).
         """
-        super().__init__(n, target)
+        super().__init__(n, target, control)
         self._base_mat = np.array([[0, -1.j], [1.j, 0]], dtype=np.complex128)
         self._mat = self._form_matrix()
 
@@ -169,14 +204,17 @@ class Z(Base):
         _base_mat (numpy.ndarray): The base matrix representing the Z gate.
     """
 
-    def __init__(self, n: int = 1, target: int = 0) -> None:
-        """Initialize a Z gate.
+    def __init__(self, n: int = 1, target: int = 0, control: int = -1) -> None:
+        """
+        Initialize a Z gate.
 
         Args:
             n (int, optional): The number of qubits (default is 1).
             target (int, optional): The target qubit index (default is 0).
+            control (int, optional): The index of the control qubit
+                                     (default is -1, which means uncontrolled).
         """
-        super().__init__(n, target)
+        super().__init__(n, target, control)
         self._base_mat = np.array([[1, 0], [0, -1]], dtype=np.complex128)
         self._mat = self._form_matrix()
 
@@ -190,14 +228,17 @@ class H(Base):
         _base_mat (numpy.ndarray): The base matrix representing the H gate.
     """
 
-    def __init__(self, n: int = 1, target: int = 0) -> None:
-        """Initialize an H gate.
+    def __init__(self, n: int = 1, target: int = 0, control: int = -1) -> None:
+        """
+        Initialize an H gate.
 
         Args:
             n (int, optional): The number of qubits (default is 1).
             target (int, optional): The target qubit index (default is 0).
+            control (int, optional): The index of the control qubit
+                                     (default is -1, which means uncontrolled).
         """
-        super().__init__(n, target)
+        super().__init__(n, target, control)
         temp = 1 / math.sqrt(2)
         self._base_mat = np.array([[temp, temp], [temp, -temp]],
                                   dtype=np.complex128)
