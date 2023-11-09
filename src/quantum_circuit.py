@@ -35,9 +35,13 @@ class QuantumCircuit:
     def add_gate(self, row, col)->None:
         """Add gate object to circuit_matrix.
         Args:
-            row (int): row of gates at the circuit position.
-            col (int): col of gates at the circuit position.
+            row (int): row of gates at the circuit position(index starts from 0).
+            col (int): col of gates at the circuit position(index starts from 0).
         """
+        if len(self._gate_list) < row:
+
+        try:
+            self._gate_list[row][col]
     
     def add_circuit_row(self)->None:
         """Add new row at the bottom of the circuit(which represents the highest digit). Redefine the qubit object with increased qubit number. Initial qubit value is maintained.
@@ -52,20 +56,20 @@ class QuantumCircuit:
     def del_gate(self, row, col)->None:
         """Delete the selected gate in circuit. 
         Args:
-            row (int): row of gates at the circuit position.
-            col (int): col of gates at the circuit position.
+            row (int): row of gates at the circuit position(index starts from 0).
+            col (int): col of gates at the circuit position(index starts from 0).
         """
 
     def del_circuit_row(self, row)->None:
         """delete the seleceted circuit row. Redefined the qubit object with decreased qubit number. Inital qubit value is also modified.
         Args:
-            row (int): row of gates at the circuit position.
+            row (int): row of gates at the circuit position(index starts from 0).
         """
 
     def calculate_qubit_state(self, col)->None:
         """calculate the selected qubit state of the circuit. 
         Args:
-            col (int): Column of desired circuit position. Function calculates the qubit states that has been operated up to the selected gate.
+            col (int): Column of desired circuit position. Function calculates the qubit states that has been operated up to the selected gate(index starts from 0).
         """
         
     def calculate_entanglement(self)->list:
