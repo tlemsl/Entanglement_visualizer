@@ -115,7 +115,8 @@ class Qubit:
         for i in range(2**self._n):
             if self.mat[i, 0]:
                 ret += f"{self.mat[i,0]}|{i}>"
-        return ret
+                ret += " + "
+        return ret[:-3]
 
     def __len__(self) -> int:
         """Return the number of qubits in the state."""
