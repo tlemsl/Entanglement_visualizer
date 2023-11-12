@@ -70,7 +70,7 @@ class Base(object):
             ret = qb.Qubit()
         else:
             ret = Base()
-        ret._mat = np.dot(self.mat, other.mat)
+        ret.mat = np.dot(self.mat, other.mat)
         return ret
 
     def __len__(self):
@@ -103,7 +103,7 @@ class Base(object):
         Raises:
             ValueError: If the input matrix is not a valid square matrix.
         """
-        if data.shape[0] == data.shape[1]:
+        if data.shape[0] != data.shape[1]:
             raise ValueError("Matrix must be a square matrix")
         self._mat = data
         self._n = int(math.sqrt(self._mat.shape[0]))
