@@ -114,7 +114,8 @@ class Qubit:
         ret = ""
         for i in range(2**self._n):
             if self.mat[i, 0]:
-                ret += f"{self.mat[i,0]}|{i}>"
+                binary = str(bin(i))[2:]
+                ret += f"{self.mat[i,0]}|{binary.zfill(self._n)}>"
                 ret += " + "
         return ret[:-3]
 
