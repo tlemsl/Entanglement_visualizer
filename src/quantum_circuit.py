@@ -46,7 +46,7 @@ class QuantumCircuit:
         if (col >= len(self._gate_list[0]))&(col<0):
             raise IndexError(f"column not in [0, {len(self._gate_list[0])-1}]")
 
-        self._gate_list[row][col] = gate 
+        self._gate_list[row][col] = gate
     
     def add_circuit_row(self)->None:
         """Add new row at the bottom of the circuit(which represents the highest digit). Redefine the qubit object with increased qubit number. Initial qubit value is maintained.
@@ -55,7 +55,7 @@ class QuantumCircuit:
         self._gate_list.append([None for _ in range(gate_num)])
 
         qubit_num = len(self.gate_list)     
-        qubit_mat = self._qubit.get_mat 
+        qubit_mat = self._qubit.mat() 
         qubit_value = qubit_mat.index(1)
         self._qubit = qb.Qubit(qubit_num+1, qubit_value)
 
@@ -64,7 +64,10 @@ class QuantumCircuit:
         Args:
             v (int): decimal value that circuit qubit will be initialized.
         """
-        self._qubit.set_v(v)        
+        n = self._qubit._n
+        data = np.zeros((2**n, 1), dtype=np.complex128)
+        data[v, 0] = 1
+        self._qubit.mat(data)
 
     def del_gate(self, row, col)->None:
         """Delete the selected gate in circuit. 
