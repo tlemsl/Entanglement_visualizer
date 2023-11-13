@@ -18,16 +18,8 @@ G1 = H0 * H1
 print(f"H0:\n{H0}")
 print(f"H1:\n{H1}")
 
-print(len(G1*Q))
-print(G1*Q)
-
 print(f"H0*Q:{H0*Q}")
 
 print(f"Q: {Q}")
 
-# print(Q)
-# print("len:", len(Q))
-# print(G0*Q)
-# print("len:", len(G0*Q))
-# print(G1*G0*Q)
-# print("len:", len(G1*G0*Q))
+print(f"H0*H1*Q = {H0*H1*Q}")
