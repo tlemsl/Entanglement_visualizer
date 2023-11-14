@@ -67,7 +67,7 @@ class QuantumCircuit:
         n = self._qubit._n
         data = np.zeros((2**n, 1), dtype=np.complex128)
         data[v, 0] = 1
-        self._qubit.mat(data)
+        self._qubit.mat = data
 
     def del_gate(self, row, col)->None:
         """Delete the selected gate in circuit. 
@@ -90,23 +90,23 @@ class QuantumCircuit:
             raise IndexError(f"row not in [0,{len(self._gate_list)-1}]")           
         del self._gate_list[-1]
 
-    def calculate_qubit_state(self)->None:
+    def calculate_qubit_state(self)->list:
         """calculate the qubit state of the circuit. 
         Returns: list of the calcuated quantum state by each columns.         
         """
         quantum_states = []
         for col_i in range(len(self._gate_list[0])): # repeat by col 
             G = None
-            for row_i in range(len(self._gate_list)): # repeat by row                
-                print(self._gate_list[row_i][col_i])
+            for row_i in range(len(self._gate_list)): # repeat by row                                
                 if (self._gate_list[row_i][col_i] == None):
                     continue
-
                 if (row_i == 0):
                     G = self._gate_list[row_i][col_i]
                 elif (row_i >= 1):
-                    G = G * self._gate_list[row_i][col_i]
-            print(f"G:\n{G}")
+                    if (G != None):
+                        G = G * self._gate_list[row_i][col_i]
+                    else:                                    
+                        G = self._gate_list[row_i][col_i]
             # TODO: 중간에 비어있는 경우 어떻게 처리할 지 생각. idea) 사이 비워 두면 그냥 Identity matrix 처리. 
             if (G == None):
                 if col_i == 0:
