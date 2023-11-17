@@ -45,6 +45,7 @@ class Qubit:
             raise ValueError("Value must be smaller than 2^n")
 
         self._n = n
+        print(f"init _n: {self._n}")
         self._mat = np.zeros((2**n, 1), dtype=np.complex128)
         self._mat[v, 0] = 1
 
@@ -115,7 +116,10 @@ class Qubit:
         for i in range(2**self._n):
             if self.mat[i, 0]:
                 binary = str(bin(i))[2:]
-                ret += f"{self.mat[i,0]}|{binary.zfill(self._n)}>"
+                print(f"binary in __str__: {binary}")
+                print(f"n: {len(self)}") # Why this is 2?
+                print(f"n: {self._n}")
+                ret += f"{self.mat[i,0]}|{binary.zfill(self._n)}>"                
                 ret += " + "
         return ret[:-3]
 
@@ -141,6 +145,7 @@ class Qubit:
         if data.shape[1] != 1:
             raise ValueError("Qubit must be a column vector!")
         self._mat = data
+        print(f"mat setter _n: {int(math.sqrt(self._mat.shape[0]))}")
         self._n = int(math.sqrt(self._mat.shape[0]))
 
     @property
