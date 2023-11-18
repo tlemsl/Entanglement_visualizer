@@ -1,6 +1,18 @@
+"""
+Defines circuit class that saves the quantum circuit structure that user made.
+
+Author: Chanwoo Moon
+Email: ixora990919@gmail.com
+Website: https://github.com/tlemsl/Entanglement_visualizer
+
+Classes:
+    Circuit: Represents the quantum circuit.
+"""
+
 import pygame
 import sys
-
+import quantum_circuit as circuit
+'''
 class Circuit:
     class Gate:
         def __init__(self, blank):
@@ -38,6 +50,8 @@ class Circuit:
     def get_entanglement(self):
         # get entanglement state of quntum circuit
         return None
+'''
+
 
 
 # 초기화

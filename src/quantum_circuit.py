@@ -10,6 +10,7 @@ Classes:
 """
 
 import qubit.qubit as qb
+import numpy as np
 
 class QuantumCircuit:
     """A class that represents the quantum circuit constructed user using GUI.
