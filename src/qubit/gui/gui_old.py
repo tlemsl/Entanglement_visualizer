@@ -1,6 +1,18 @@
+"""
+Defines circuit class that saves the quantum circuit structure that user made.
+
+Author: Chanwoo Moon
+Email: ixora990919@gmail.com
+Website: https://github.com/tlemsl/Entanglement_visualizer
+
+Classes:
+    Circuit: Represents the quantum circuit.
+"""
+
 import pygame
 import sys
-
+import quantum_circuit as circuit
+'''
 class Circuit:
     class Gate:
         def __init__(self, blank):
@@ -8,7 +20,7 @@ class Circuit:
             self.gate_type = None
             self.gate_obj = None
             self.blank_obj = blank
-    
+
     def __init__(self, max_circuit_length):
         self.blank_list = []
 
@@ -38,6 +50,8 @@ class Circuit:
     def get_entanglement(self):
         # get entanglement state of quntum circuit
         return None
+'''
+
 
 
 # 초기화
@@ -116,7 +130,7 @@ while True:
 
     pygame.draw.rect(screen, RED, button_rect_y)
     screen.blit(button_text_y, button_text_rect_y)
-    
+
     pygame.draw.rect(screen, RED, button_rect_z)
     screen.blit(button_text_z, button_text_rect_z)
 
@@ -153,11 +167,11 @@ while True:
             gate_text_rect = gate_z_text.get_rect(center=obj.center)
             screen.blit(gate_z_text,gate_text_rect)
 
-        
-        
 
 
-    
+
+
+
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -170,7 +184,7 @@ while True:
                     dragging =True
                     selected_obj = obj
                     break
-                
+
             # check gate generation button is pushed
             if button_rect_x.collidepoint(event.pos):
                 new_object = pygame.Rect(50, 120, 100, 50)
@@ -193,12 +207,12 @@ while True:
                 circuit.del_qubit()
                 objects=[]
 
-            
+
         elif event.type == pygame.MOUSEBUTTONUP:
             dragging = False
 
 
-            
+
             for qubit in circuit.blank_list:
                 for blank in qubit:
                     if blank.is_empty:
@@ -231,13 +245,13 @@ while True:
                                 objects[change_idx][2] = False
 
 
-                    
+
 
 
         elif event.type == pygame.MOUSEMOTION and dragging:
             selected_obj.move_ip(event.rel)
 
 
-                    
+
 
     pygame.display.flip()
