@@ -106,7 +106,7 @@ class Base(object):
         if data.shape[0] != data.shape[1]:
             raise ValueError("Matrix must be a square matrix")
         self._mat = data
-        self._n = int(math.sqrt(self._mat.shape[0]))
+        self._n = int(math.log2(self._mat.shape[0]))
 
     def _form_matrix(self):
         """Form the matrix representation of the gate.
