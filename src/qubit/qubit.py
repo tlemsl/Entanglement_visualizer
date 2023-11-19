@@ -147,3 +147,52 @@ class Qubit:
     def T(self):
         """Getter for the qubit's conjugate transpose (Hermitian conjugate)"""
         return self._mat.conjugate().T
+
+    @property
+    def entangled(self):
+        """Determine if the qubit state is entangled.
+
+        This property calculates whether the qubit is in an entangled state. 
+        Entanglement is a key feature of quantum mechanics where the state of 
+        one qubit is dependent on the state of another.
+
+        Returns:
+            bool: True if the qubit is entangled, False otherwise.
+        """
+
+        rhoT = np.dot(self.mat, self.T)
+        rhoA = np.dot(
+            np.dot(np.kron(np.eye((self._n - 1) * 2),
+                           self.base(2, 0).T), rhoT),
+            np.kron(np.eye((self._n - 1) * 2), self.base(2, 0)))
+        for i in range(1, (self._n - 1) * 2):
+            rhoA += np.dot(
+                np.dot(np.kron(np.eye((self._n - 1) * 2),
+                               self.base(2, i).T), rhoT),
+                np.kron(np.eye((self._n - 1) * 2), self.base(2, i)))
+        rhoA = np.dot(rhoA, rhoA)
+        v = np.trace(rhoA)
+        if v > 0.999:
+            return False
+        else:
+            return True
+
+    @staticmethod
+    def base(n, k):
+        """Create a base state vector for a given qubit configuration.
+
+        This static method creates a state vector representing a base state
+        in a quantum system with a specified number of qubits. The base state
+        has a value of 1 in the k-th position and 0 elsewhere.
+
+        Args:
+            n (int): The number of qubits.
+            k (int): The position in the state vector to be set to 1.
+
+        Returns:
+            numpy.ndarray: A state vector representing the base state.
+        """
+        
+        ret = np.zeros((n, 1), dtype=np.complex128)
+        ret[k, 0] = 1
+        return ret
