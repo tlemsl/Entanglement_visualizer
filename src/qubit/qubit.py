@@ -196,3 +196,4 @@ class Qubit:
         ret = np.zeros((n, 1), dtype=np.complex128)
         ret[k, 0] = 1
         return ret
+
