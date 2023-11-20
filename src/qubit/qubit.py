@@ -141,7 +141,7 @@ class Qubit:
         if data.shape[1] != 1:
             raise ValueError("Qubit must be a column vector!")
         self._mat = data
-        self._n = int(math.sqrt(self._mat.shape[0]))
+        self._n = int(math.log2(self._mat.shape[0]))
 
     @property
     def T(self):
