@@ -12,6 +12,8 @@ Classes:
 
 import numpy as np
 import qubit.qubit as qb
+import qubit.gates as qg
+import util.utils as ut
 
 
 class QuantumCircuit:
@@ -36,6 +38,14 @@ class QuantumCircuit:
         self._qubit = qubit
         self._gate_list = [[None for _ in range(gate_num)]
                            for _ in range(self._qubit._n)]
+        self._shape = self._qubit._n, gate_num
+
+    def __len__(self):
+        """return the shape of the gate list
+        Returns: 
+            set of gate list shape
+        """
+        return self._shape
 
     def add_gate(self, row, col, gate):
         """Adds a gate to the circuit.
@@ -57,17 +67,26 @@ class QuantumCircuit:
 
     def add_circuit_row(self):
         """Adds a new row at the bottom of the circuit and updates the qubit."""
-        gate_num = len(self._gate_list[0])
-        self._gate_list.append([None for _ in range(gate_num)])
-
-        qubit_num = len(self._gate_list)     
-        qubit_mat = self._qubit._mat 
-        v = 0
-        for i in range(1, len(qubit_mat)+1):
-            v += qubit_mat[-i][0].real * (2**(len(qubit_mat)-i))        
-        v = int(v)
+        qubit_num, gate_num = self._shape        
+        self._gate_list.append([None for _ in range(gate_num)]) # add new qubit list.
+        self._shape = qubit_num + 1, gate_num # update the circuit shape
         
-        self._qubit = qb.Qubit(qubit_num, v)        
+        v = ut.qubitmat2int(self._qubit._mat)
+        
+        self._qubit = qb.Qubit(qubit_num+1, v) # update the qubit        
+
+        # update gate format(qubit_num)
+        for row, gate_sequence in enumerate(self._gate_list):
+            for col, gate in enumerate(gate_sequence):
+                if gate != None:
+                    if isinstance(gate, qg.H):
+                        self._gate_list[row][col] = qg.H(qubit_num+1, gate._target)
+                    elif isinstance(gate, qg.X):
+                        self._gate_list[row][col] = qg.X(qubit_num+1, gate._target)
+                    elif isinstance(gate, qg.Y):
+                        self._gate_list[row][col] = qg.Y(qubit_num+1, gate._target)
+                    elif isinstance(gate, qg.Z):
+                        self._gate_list[row][col] = qg.Z(qubit_num+1, gate._target)
 
     def change_qubit_value(self, v):
         """Changes the qubit value.
@@ -99,7 +118,30 @@ class QuantumCircuit:
 
     def del_circuit_row(self):
         """Deletes the bottom row of the circuit."""
+        
+        qubit_num, gate_num = self._shape
+        if qubit_num == 0:
+            raise IndexError("no rows to delete.")
+        self._shape = qubit_num-1, gate_num
+
         self._gate_list.pop()
+                
+        v = ut.qubitmat2int(self._qubit._mat)        
+        v = int(v%(len(self._qubit._mat)/2))        
+        self._qubit = qb.Qubit(qubit_num-1, v)
+
+        for row, gate_sequence in enumerate(self._gate_list):
+            for col, gate in enumerate(gate_sequence):
+                if gate != None:
+                    if isinstance(gate, qg.H):
+                        self._gate_list[row][col] = qg.H(qubit_num-1, gate._target)
+                    elif isinstance(gate, qg.X):
+                        self._gate_list[row][col] = qg.X(qubit_num-1, gate._target)
+                    elif isinstance(gate, qg.Y):
+                        self._gate_list[row][col] = qg.Y(qubit_num-1, gate._target)
+                    elif isinstance(gate, qg.Z):
+                        self._gate_list[row][col] = qg.Z(qubit_num-1, gate._target)
+        
 
     def calculate_qubit_state(self):
         """Calculates the qubit state of the circuit.
@@ -107,26 +149,34 @@ class QuantumCircuit:
         Returns:
             list: Quantum states calculated for each column.
         """
-        quantum_states = []
-        for col_i in range(len(self._gate_list[0])):
-            #TODO(@changyu): 중간에 비어있는 경우 어떻게 처리할 지 생각. idea) 사이 비워 두면 
-            #그냥 Identity matrix 처리.
-            G = None
-            for row_i in range(len(self._gate_list)):
-                gate = self._gate_list[row_i][col_i]
-                if gate is None:
+        quantum_states = []        
+        row_num, col_num = self._shape
+        n = self._qubit._n        
+        for col in range(col_num):    
+            G = None # stacking gates column wize(axis 0) by tensor product.                        
+            for row in range(row_num):                       
+                gate = self._gate_list[row][col]                
+                if gate == None:
                     continue
-                G = gate if G is None else G * gate
-            print(col_i)
-            print(G)
-            if G is None:
-                quantum_states.append(self._qubit if col_i ==
-                                      0 else quantum_states[col_i - 1])
+                else:
+                    if G == None:
+                        G = gate
+                    else:
+                        G = G*gate
+            # apply G to qubit
+            if G == None:
+                if col == 0:
+                    quantum_states.append(self._qubit)
+                elif col >= 1:
+                    quantum_states.append(quantum_states[col-1])
             else:
-                quantum_states.append(G * self._qubit if col_i == 0 else G *
-                                      quantum_states[col_i - 1])
-            print(quantum_states[-1].mat)
+                if col==0:
+                    quantum_states.append(G*self._qubit)
+                elif col >= 1:
+                    quantum_states.append(G*quantum_states[col-1])
         return quantum_states
+
+            
 
     def calculate_entanglement(self):
         """Calculates entangled qubit sets in each quantum state.
