@@ -12,8 +12,7 @@ class TestQubit(unittest.TestCase):
         self.assertTrue(np.allclose(q.mat, expected_mat))
 
         q = qb.Qubit(2, 2)
-        expected_mat = np.array([[0], [0], [1], [0]],
-                                dtype=np.complex128)
+        expected_mat = np.array([[0], [0], [1], [0]], dtype=np.complex128)
         self.assertTrue(np.allclose(q.mat, expected_mat))
 
         with self.assertRaises(ValueError):
@@ -55,7 +54,6 @@ class TestQubit(unittest.TestCase):
         actual_zero_str = str(q_zero)
         self.assertEqual(actual_zero_str, expected_zero_str)
 
-
     def test_mat_property(self):
         """Test qubit's state matrix property getters/setters."""
         q = qb.Qubit(4, 3)
@@ -73,8 +71,7 @@ class TestQubit(unittest.TestCase):
         q1 = qb.Qubit(2, 1)  # |01>
         q2 = qb.Qubit(2, 2)  # |10>
         q_sum = q1 + q2
-        expected_mat = np.array([[0], [1], [1], [0]],
-                                dtype=np.complex128)
+        expected_mat = np.array([[0], [1], [1], [0]], dtype=np.complex128)
         self.assertTrue(np.allclose(q_sum.mat, expected_mat))
 
         with self.assertRaises(TypeError):
@@ -96,10 +93,39 @@ class TestQubit(unittest.TestCase):
         qubit = qb.Qubit(n=1, v=0)
         conjugate_transpose = qubit.T
         expected_output = np.array([[1, 0]], dtype=np.complex128)
-        
-        self.assertTrue(np.array_equal(conjugate_transpose,
-                                       expected_output),
+
+        self.assertTrue(np.array_equal(conjugate_transpose, expected_output),
                         "T function does not produce correct result.")
+
+    def test_not_entangled(self):
+        """Test with a qubit state that is not entangled."""
+        qubit = qb.Qubit(2, 0)  # Initialize a 2-qubit state |00>
+        self.assertEqual(qubit.entangled(), [])
+
+    def test_entangled(self):
+        """Test with an entangled qubit state."""
+        qubit = qb.Qubit(2)
+        # Creating an entangled state
+        # for example, Bell state |Ψ+> = (|00> + |11>)/sqrt(2)
+        qubit.mat = np.array([[1 / np.sqrt(2)], [0], [0], [1 / np.sqrt(2)]],
+                             dtype=np.complex128)
+        self.assertEqual(qubit.entangled(),
+                         [0, 1])  # Both qubits should be entangled
+
+    def test_partial_entanglement(self):
+        """Test with partially entangled qubits."""
+        # Assuming the 'entangled' method returns indices of qubits 
+        # that are part of an entanglement
+        qubit = qb.Qubit(3)  # Initialize a 3-qubit state
+        # Creating a state where first two qubits are entangled 
+        # and the third is not
+        # For example, |Ψ> = (|000> + |110>)/sqrt(2)
+        qubit.mat = np.array(
+            [[1 / np.sqrt(2)], [0], [0], [0], [0], [0], [1 / np.sqrt(2)], [0]],
+            dtype=np.complex128)
+        self.assertEqual(qubit.entangled(),
+                         [1, 2])  # Only the first two qubits are entangled
+
 
 if __name__ == '__main__':
     unittest.main()

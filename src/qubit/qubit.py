@@ -14,6 +14,8 @@ Classes:
 import math
 import numpy as np
 
+Threshold = complex(0.0001)
+
 
 class Qubit:
     """A class representing a quantum qubit.
@@ -148,34 +150,69 @@ class Qubit:
         """Getter for the qubit's conjugate transpose (Hermitian conjugate)"""
         return self._mat.conjugate().T
 
-    @property
     def entangled(self):
-        """Determine if the qubit state is entangled.
+        """Determines if the qubit state is entangled.
 
-        This property calculates whether the qubit is in an entangled state. 
-        Entanglement is a key feature of quantum mechanics where the state of 
-        one qubit is dependent on the state of another.
+        Entanglement is a fundamental property of quantum mechanics, where the
+        state of one qubit is correlated with the state of another. This method
+        checks if such entanglement exists in the qubit state.
 
         Returns:
-            bool: True if the qubit is entangled, False otherwise.
+            list: Indices of qubits that are part of an entanglement set.
         """
+        entanglementset = []
+        sep_list = [2**x for x in range(self._n)]
+        l = 2**self._n
+        for number, step in enumerate(sep_list):
+            sep_vec = [[], []]
+            for i in range(l // step):
+                for s in range(step):
+                    sep_vec[i % 2].append(self.mat[i * step + s, 0])
 
-        rhoT = np.dot(self.mat, self.T)
-        rhoA = np.dot(
-            np.dot(np.kron(np.eye((self._n - 1) * 2),
-                           self.base(2, 0).T), rhoT),
-            np.kron(np.eye((self._n - 1) * 2), self.base(2, 0)))
-        for i in range(1, (self._n - 1) * 2):
-            rhoA += np.dot(
-                np.dot(np.kron(np.eye((self._n - 1) * 2),
-                               self.base(2, i).T), rhoT),
-                np.kron(np.eye((self._n - 1) * 2), self.base(2, i)))
-        rhoA = np.dot(rhoA, rhoA)
-        v = np.trace(rhoA)
-        if v > 0.999:
-            return False
+            for vec in sep_vec:
+                if self._zero(vec):
+                    break
+            else:
+                if not self._proportional(sep_vec[0], sep_vec[1]):
+                    entanglementset.append(number)
+        return entanglementset
+
+    def _zero(self, lst):
+        """Determines if all elements in a list are approximately zero.
+
+        Args:
+            lst (list): A list of numeric values.
+
+        Returns:
+            bool: True if all elements are close to zero, False otherwise.
+        """
+        return all(abs(v) <= Threshold for v in lst)
+
+    def _proportional(self, list1, list2):
+        """Checks if elements of two lists are proportional to each other.
+
+        Args:
+            list1 (list): First list of numeric values.
+            list2 (list): Second list of numeric values.
+
+        Returns:
+            bool: True if elements of list1 are proportional to list2, 
+                  False otherwise.
+        """
+        if abs(list2[0]) > Threshold:
+            val = complex(list1[0] / list2[0])
         else:
-            return True
+            val = complex(math.inf)
+
+        for v1, v2 in zip(list1, list2):
+            if abs(v2) > Threshold:
+                temp = complex(v1 / v2)
+            else:
+                temp = complex(math.inf)
+
+            if temp != val:
+                return False
+        return True
 
     @staticmethod
     def base(n, k):
@@ -192,8 +229,7 @@ class Qubit:
         Returns:
             numpy.ndarray: A state vector representing the base state.
         """
-        
+
         ret = np.zeros((n, 1), dtype=np.complex128)
         ret[k, 0] = 1
         return ret
-
