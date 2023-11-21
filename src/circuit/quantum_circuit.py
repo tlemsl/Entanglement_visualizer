@@ -60,10 +60,14 @@ class QuantumCircuit:
         gate_num = len(self._gate_list[0])
         self._gate_list.append([None for _ in range(gate_num)])
 
-        qubit_num = len(self._gate_list)
-        qubit_mat = self._qubit.mat
-        qubit_value = qubit_mat.index(1)
-        self._qubit = qb.Qubit(qubit_num, qubit_value)
+        qubit_num = len(self._gate_list)     
+        qubit_mat = self._qubit._mat 
+        v = 0
+        for i in range(1, len(qubit_mat)+1):
+            v += qubit_mat[-i][0].real * (2**(len(qubit_mat)-i))        
+        v = int(v)
+        
+        self._qubit = qb.Qubit(qubit_num, v)        
 
     def change_qubit_value(self, v):
         """Changes the qubit value.
