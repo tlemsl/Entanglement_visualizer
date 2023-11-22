@@ -207,6 +207,8 @@ class WindowClass(QMainWindow, form_class):
         self.control_draw_list = []
         # entangled qubit list
         self.entangled_draw_list = [[[0,1]],[[0,1]],[[0,1],[2,3]],[[1,2]],[[1,2,3]]]
+        # result of qubit
+        self.qubit_cal_list = []
 
         y = 80
         label_no = 0
@@ -305,7 +307,11 @@ class WindowClass(QMainWindow, form_class):
 
     def handle_button_cal(self):
         '''Handle function when click calculate button'''
-        self.result_0.setText(str(self.QC.calculate_qubit_state()[-1]))
+        self.qubit_cal_list = self.QC.calculate_qubit_state()
+
+        self.result_0.setText(str(self.qubit_cal_list[-1]))
+
+
 
     def handle_button_add(self):
         '''Handle function when click add qubit button'''
@@ -354,6 +360,7 @@ class WindowClass(QMainWindow, form_class):
         else:
             self.qubit_value += decimal_val
         self.QC.change_qubit_value(self.qubit_value)
+
 
 
 # Genreate quantum circuit class instance
