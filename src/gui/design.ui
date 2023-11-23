@@ -56,14 +56,14 @@
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
-      <x>1370</x>
+      <x>1350</x>
       <y>60</y>
-      <width>57</width>
-      <height>15</height>
+      <width>321</width>
+      <height>16</height>
      </rect>
     </property>
     <property name="text">
-     <string>Output</string>
+     <string>Output (click cell to check detailed qubit state)</string>
     </property>
    </widget>
    <widget class="Line" name="line_5">
@@ -95,14 +95,14 @@
    <widget class="QLabel" name="result_0">
     <property name="geometry">
      <rect>
-      <x>1350</x>
-      <y>330</y>
+      <x>1340</x>
+      <y>760</y>
       <width>311</width>
       <height>111</height>
      </rect>
     </property>
     <property name="text">
-     <string>TextLabel</string>
+     <string>(Please push Caculate button)</string>
     </property>
     <property name="scaledContents">
      <bool>false</bool>
@@ -241,6 +241,29 @@
      <string>Del Qubit</string>
     </property>
    </widget>
+   <widget class="QTableWidget" name="tableWidget">
+    <property name="geometry">
+     <rect>
+      <x>1340</x>
+      <y>90</y>
+      <width>341</width>
+      <height>671</height>
+     </rect>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_3">
+    <property name="geometry">
+     <rect>
+      <x>1240</x>
+      <y>800</y>
+      <width>151</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Fianl result: </string>
+    </property>
+   </widget>
    <zorder>line_3</zorder>
    <zorder>line</zorder>
    <zorder>line_2</zorder>
@@ -258,6 +281,8 @@
    <zorder>line_10</zorder>
    <zorder>button_add</zorder>
    <zorder>button_del</zorder>
+   <zorder>tableWidget</zorder>
+   <zorder>label_3</zorder>
   </widget>
   <widget class="QMenuBar" name="menubar">
    <property name="geometry">

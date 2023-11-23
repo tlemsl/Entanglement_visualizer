@@ -6,7 +6,7 @@ This code include module [qubit.qubit, qubit.gates, quantum_circuit]
 
 Author: Chanwoo Moon
 Email: ixora990919@gmail.com
-Website: https://github.com/tlemsl/Entanglement_visualizer
+Website: https://github.com/tlemsl/Entanglement_visualizerg
 
 
 """
@@ -20,7 +20,7 @@ import circuit.quantum_circuit as circuit
 import qubit.qubit as qb
 import qubit.gates as qg
 
-QUBIT_NUM = 4
+QUBIT_NUM = 2
 CIRCUIT_LEN = 10
 
 
@@ -65,6 +65,14 @@ class TwoInputDialog(QDialog):
         self.return_value2 = self.input2.text()
         self.accept()
 
+class CellViewer(QDialog):
+    def __init__(self, text, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Qubit state")
+        layout = QVBoxLayout()
+        self.label = QLabel(text)
+        layout.addWidget(self.label)
+        self.setLayout(layout)
 
 class QuantumGate(QComboBox):
     """Class inherits QComboBox in QWidget
@@ -199,14 +207,26 @@ class WindowClass(QMainWindow, form_class):
         super().__init__()
         self.setupUi(self)
 
+        self.setWindowTitle('Quantum Circuit Simulator')
+
         self.button_cal.clicked.connect(self.handle_button_cal)
         self.button_add.clicked.connect(self.handle_button_add)
         self.button_del.clicked.connect(self.handle_button_del)
 
+        self.tableWidget.setRowCount(CIRCUIT_LEN+1)  # 행 수 설정
+        self.tableWidget.setColumnCount(2)  # 열 수 설정
+        self.tableWidget.setItem(0, 0, QTableWidgetItem("State"))
+        self.tableWidget.setItem(0, 1, QTableWidgetItem("Qubit"))
+        self.tableWidget.setColumnWidth(0, 50)
+        self.tableWidget.setColumnWidth(1, 250)
+        self.tableWidget.setWordWrap(True)
+        self.tableWidget.setEditTriggers(QTableWidget.NoEditTriggers)
+        self.tableWidget.cellClicked.connect(self.showCellContent)
+
         # control gate list
         self.control_draw_list = []
         # entangled qubit list
-        self.entangled_draw_list = [[[0,1]],[[0,1]],[[0,1],[2,3]],[[1,2]],[[1,2,3]]]
+        self.entangled_draw_list = []
         # result of qubit
         self.qubit_cal_list = []
 
@@ -308,45 +328,69 @@ class WindowClass(QMainWindow, form_class):
     def handle_button_cal(self):
         '''Handle function when click calculate button'''
         self.qubit_cal_list = self.QC.calculate_qubit_state()
+        self.entangled_draw_list = []
+        for idx, qubit_cal in enumerate(self.qubit_cal_list):
+            # will be changed when Qubit code fixed
+            self.entangled_draw_list.append([qubit_cal.entangled()])
+            # update qubit result at result table
+            self.tableWidget.setItem(idx+1, 0, QTableWidgetItem(str(idx)))
+            self.tableWidget.setItem(idx+1, 1, QTableWidgetItem(str(qubit_cal)))
+            
 
         self.result_0.setText(str(self.qubit_cal_list[-1]))
+        print("check",self.entangled_draw_list)
+        self.update()
 
 
 
     def handle_button_add(self):
         '''Handle function when click add qubit button'''
-        y = self.gate_widget_list[-1][0].pos().y() + 110
+        global QUBIT_NUM
+        if QUBIT_NUM >= 7:
+            QMessageBox.warning(self, 'Error', 'Qubit number exceed max', QMessageBox.Ok)
+            return None
+        QUBIT_NUM += 1
+        y = self.gate_widget_list[-1][0].pos().y() + 80
         label_no = len(self.gate_widget_list)
         tmp_list = []
         x = 200
         tmp_label = QLabel(self)
         tmp_label.setText(str(label_no))
         tmp_label.move(10, y + 20)
+        tmp_label.show()
         tmp_list.append(tmp_label)
 
         tmp_input = QubitInput(self)
         tmp_input.addItems(["0", "1"])
         tmp_input.move(70, y + 20)
         tmp_input.setObjectName("input_" + str(label_no))
+        tmp_input.show()
         tmp_list.append(tmp_input)
 
         for j in range(CIRCUIT_LEN):
             tmp = QuantumGate(self)
             tmp.resize(60, 60)
             tmp.move(x, y)
+            tmp.show()
 
-            tmp.addItems(["", "X", "Y", "Z", "Control"])
+            tmp.addItems(["", "X", "Y", "Z", "H", "⊙"])
             tmp.setObjectName("gate" + str(label_no) + "_" + str(j))
             x += 110
             tmp_list.append(tmp)
-        y += 100
         self.gate_widget_list.append(tmp_list)
         self.QC.add_circuit_row()
 
+
     def handle_button_del(self):
-        '''Handle function when click del qubit button'''
-        if len(self.gate_widget_list) == 1:
-            raise Exception("There is no Qubit to delete")
+        '''Handle function when click del qubit button''' 
+        global QUBIT_NUM
+        if QUBIT_NUM <= 1:
+            QMessageBox.warning(self, 'Error', 'There is no Qubit to delete', QMessageBox.Ok)
+            return None
+
+       
+
+        QUBIT_NUM -= 1
         for i in self.gate_widget_list[-1]:
             i.deleteLater()
         self.gate_widget_list = self.gate_widget_list[0:-1]
@@ -360,6 +404,14 @@ class WindowClass(QMainWindow, form_class):
         else:
             self.qubit_value += decimal_val
         self.QC.change_qubit_value(self.qubit_value)
+
+    def showCellContent(self,row, col):
+        '''fucntion for table view'''
+        item = self.tableWidget.item(row, col)
+        if item is not None:
+            text = item.text()
+            dialog = CellViewer(text, self)
+            dialog.exec_()
 
 
 
