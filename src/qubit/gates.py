@@ -14,6 +14,7 @@ Classes:
     Y: Class representing a Y (Pauli-Y) gate.
     Z: Class representing a Z gate.
     H: Class representing an H (Hadamard) gate.
+    Swap: Class representing a Swap gate.
 """
 
 import math
@@ -54,7 +55,7 @@ class Base(object):
         self._n = n
         self._target = target
         self._control = control
-        self._mat = self._form_matrix()
+        self._mat = self.form_matrix(self._target, self._control)
 
     def __mul__(self, other):
         """Multiply two quantum gates using matrix multiplication.
@@ -108,35 +109,35 @@ class Base(object):
         self._mat = data
         self._n = int(math.log2(self._mat.shape[0]))
 
-    def _form_matrix(self):
+    def form_matrix(self, target, control):
         """Form the matrix representation of the gate.
 
         Returns:
             numpy.ndarray: The matrix representation of the gate.
         """
         ret = Identity_matrix
-        if self._control == -1:
-            if self._target == (self._n - 1):
+        if control == -1:
+            if target == (self._n - 1):
                 ret = self._base_mat
             for i in range(self._n - 2, -1, -1):
-                if i == self._target:
+                if i == target:
                     ret = np.kron(ret, self._base_mat)
                 else:
                     ret = np.kron(ret, Identity_matrix)
 
         else:
             base0 = base1 = Identity_matrix
-            if self._target == self._n - 1:
+            if target == self._n - 1:
                 base0 = Identity_matrix
                 base1 = self._base_mat
-            elif self._control == self._n - 1:
+            elif control == self._n - 1:
                 base0 = Base0
                 base1 = Base1
             for i in range(self._n - 2, -1, -1):
-                if i == self._target:
+                if i == target:
                     base0 = np.kron(base0, Identity_matrix)
                     base1 = np.kron(base1, self._base_mat)
-                elif i == self._control:
+                elif i == control:
                     base0 = np.kron(base0, Base0)
                     base1 = np.kron(base1, Base1)
                 else:
@@ -168,7 +169,7 @@ class X(Base):
         """
         super().__init__(n, target, control)
         self._base_mat = np.array([[0, 1], [1, 0]], dtype=np.complex128)
-        self._mat = self._form_matrix()
+        self._mat = self.form_matrix(target, control)
 
 
 class Y(Base):
@@ -192,7 +193,7 @@ class Y(Base):
         """
         super().__init__(n, target, control)
         self._base_mat = np.array([[0, -1.j], [1.j, 0]], dtype=np.complex128)
-        self._mat = self._form_matrix()
+        self._mat = self.form_matrix(target, control)
 
 
 class Z(Base):
@@ -216,7 +217,7 @@ class Z(Base):
         """
         super().__init__(n, target, control)
         self._base_mat = np.array([[1, 0], [0, -1]], dtype=np.complex128)
-        self._mat = self._form_matrix()
+        self._mat = self.form_matrix(target, control)
 
 
 class H(Base):
@@ -242,4 +243,35 @@ class H(Base):
         temp = 1 / math.sqrt(2)
         self._base_mat = np.array([[temp, temp], [temp, -temp]],
                                   dtype=np.complex128)
-        self._mat = self._form_matrix()
+        self._mat = self.form_matrix(target, control)
+
+
+class Swap(X):
+    """Class representing a Swap gate.
+
+    The Swap gate swaps the states of two qubits. It inherits from 
+    the Base class and is defined as a sequence of three X (Pauli-X) gates.
+
+    Attributes:
+        _base_mat (numpy.ndarray): The base matrix representing the Swap gate.
+    """
+
+    def __init__(self, n: int = 1, target: int = 0, control: int = -1) -> None:
+        """
+        Initialize a Swap gate.
+
+        Args:
+            n (int, optional): The number of qubits (default is 1).
+            target (int, optional): The target qubit index for the swap
+                                    (default is 0).
+            control (int, optional): The control qubit index for the swap
+                                     (default is -1, which means uncontrolled).
+
+        Raises:
+            ValueError: If the target or control qubit indices are not valid.
+        """
+        super().__init__(n, target, control)
+        self._mat = np.dot(
+            self.form_matrix(target, control),
+            np.dot(self.form_matrix(control, target),
+                   self.form_matrix(target, control)))
