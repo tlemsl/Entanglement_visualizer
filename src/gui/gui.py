@@ -182,13 +182,7 @@ class QubitInput(QComboBox):
 
     def handle_selection(self, index):
         '''handle function when initial value is selected on qubit input box'''
-        selected_item = self.currentText()
-        if self.objectName():
-            if selected_item not in ['0', '1']:
-                print("none")
-                return None
-            self.parent().qubit_update(int(selected_item),
-                                       int(self.objectName()[6]))
+        self.parent().qubit_update()
 
 
 # connect UI to pyqt
@@ -200,7 +194,6 @@ class WindowClass(QMainWindow, form_class):
 
     qubit = qb.Qubit(QUBIT_NUM, 0)
     QC = circuit.QuantumCircuit(qubit, CIRCUIT_LEN)
-    qubit_value = 0
     is_init = False
 
     def __init__(self):
@@ -229,6 +222,7 @@ class WindowClass(QMainWindow, form_class):
         self.entangled_draw_list = []
         # result of qubit
         self.qubit_cal_list = []
+
 
         y = 80
         label_no = 0
@@ -329,13 +323,16 @@ class WindowClass(QMainWindow, form_class):
         '''Handle function when click calculate button'''
         self.qubit_cal_list = self.QC.calculate_qubit_state()
         self.entangled_draw_list = []
+
         for idx, qubit_cal in enumerate(self.qubit_cal_list):
             # will be changed when Qubit code fixed
-            self.entangled_draw_list.append([qubit_cal.entangled()])
+            self.entangled_draw_list.append(qubit_cal.entangled())
             # update qubit result at result table
             self.tableWidget.setItem(idx+1, 0, QTableWidgetItem(str(idx)))
             self.tableWidget.setItem(idx+1, 1, QTableWidgetItem(str(qubit_cal)))
-            
+
+        
+        print("entangle",self.qubit_cal_list[-1].entangled())
 
         self.result_0.setText(str(self.qubit_cal_list[-1]))
         print("check",self.entangled_draw_list)
@@ -396,14 +393,14 @@ class WindowClass(QMainWindow, form_class):
         self.gate_widget_list = self.gate_widget_list[0:-1]
         self.QC.del_circuit_row()
 
-    def qubit_update(self, value, idx):
+    def qubit_update(self):
         '''Function to update qubit value when input qubit value is changed'''
-        decimal_val = 2**idx
-        if value == 0:
-            self.qubit_value -= decimal_val
-        else:
-            self.qubit_value += decimal_val
-        self.QC.change_qubit_value(self.qubit_value)
+        qubit_value = 0
+        for idx, row in enumerate(self.gate_widget_list):
+            if int(row[1].currentText()):
+                qubit_value += 2**idx
+
+        self.QC.change_qubit_value(qubit_value)
 
     def showCellContent(self,row, col):
         '''fucntion for table view'''
