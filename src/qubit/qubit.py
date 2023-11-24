@@ -13,7 +13,7 @@ Classes:
 
 import math
 import numpy as np
-
+import qubit.entanglment
 Threshold = complex(0.0001)
 
 
@@ -160,59 +160,8 @@ class Qubit:
         Returns:
             list: Indices of qubits that are part of an entanglement set.
         """
-        entanglementset = []
-        sep_list = [2**x for x in range(self._n)]
-        l = 2**self._n
-        for number, step in enumerate(sep_list):
-            sep_vec = [[], []]
-            for i in range(l // step):
-                for s in range(step):
-                    sep_vec[i % 2].append(self.mat[i * step + s, 0])
 
-            for vec in sep_vec:
-                if self._zero(vec):
-                    break
-            else:
-                if not self._proportional(sep_vec[0], sep_vec[1]):
-                    entanglementset.append(number)
-        return entanglementset
-
-    def _zero(self, lst):
-        """Determines if all elements in a list are approximately zero.
-
-        Args:
-            lst (list): A list of numeric values.
-
-        Returns:
-            bool: True if all elements are close to zero, False otherwise.
-        """
-        return all(abs(v) <= Threshold for v in lst)
-
-    def _proportional(self, list1, list2):
-        """Checks if elements of two lists are proportional to each other.
-
-        Args:
-            list1 (list): First list of numeric values.
-            list2 (list): Second list of numeric values.
-
-        Returns:
-            bool: True if elements of list1 are proportional to list2, 
-                  False otherwise.
-        """
-        if abs(list2[0]) > Threshold:
-            val = complex(list1[0] / list2[0])
-        else:
-            val = complex(math.inf)
-
-        for v1, v2 in zip(list1, list2):
-            if abs(v2) > Threshold:
-                temp = complex(v1 / v2)
-            else:
-                temp = complex(math.inf)
-
-            if temp != val:
-                return False
-        return True
+        return qubit.entanglment.entanglement(self.mat)
 
     @staticmethod
     def base(n, k):
