@@ -80,13 +80,13 @@ class QuantumCircuit:
             for col, gate in enumerate(gate_sequence):
                 if gate != None:
                     if isinstance(gate, qg.H):
-                        self._gate_list[row][col] = qg.H(qubit_num+1, gate._target)
+                        self._gate_list[row][col] = qg.H(qubit_num+1, gate._target, gate._control)
                     elif isinstance(gate, qg.X):
-                        self._gate_list[row][col] = qg.X(qubit_num+1, gate._target)
+                        self._gate_list[row][col] = qg.X(qubit_num+1, gate._target, gate._control)
                     elif isinstance(gate, qg.Y):
-                        self._gate_list[row][col] = qg.Y(qubit_num+1, gate._target)
+                        self._gate_list[row][col] = qg.Y(qubit_num+1, gate._target, gate._control)
                     elif isinstance(gate, qg.Z):
-                        self._gate_list[row][col] = qg.Z(qubit_num+1, gate._target)
+                        self._gate_list[row][col] = qg.Z(qubit_num+1, gate._target, gate._control)
 
     def change_qubit_value(self, v):
         """Changes the qubit value.
@@ -134,13 +134,13 @@ class QuantumCircuit:
             for col, gate in enumerate(gate_sequence):
                 if gate != None:
                     if isinstance(gate, qg.H):
-                        self._gate_list[row][col] = qg.H(qubit_num-1, gate._target)
+                        self._gate_list[row][col] = qg.H(qubit_num-1, gate._target, gate._control)
                     elif isinstance(gate, qg.X):
-                        self._gate_list[row][col] = qg.X(qubit_num-1, gate._target)
+                        self._gate_list[row][col] = qg.X(qubit_num-1, gate._target, gate._control)
                     elif isinstance(gate, qg.Y):
-                        self._gate_list[row][col] = qg.Y(qubit_num-1, gate._target)
+                        self._gate_list[row][col] = qg.Y(qubit_num-1, gate._target, gate._control)
                     elif isinstance(gate, qg.Z):
-                        self._gate_list[row][col] = qg.Z(qubit_num-1, gate._target)
+                        self._gate_list[row][col] = qg.Z(qubit_num-1, gate._target, gate._control)
         
 
     def calculate_qubit_state(self):
