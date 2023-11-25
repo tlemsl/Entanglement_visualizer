@@ -14,7 +14,17 @@ Classes:
 import math
 import numpy as np
 import qubit.entanglment
-Threshold = complex(0.0001)
+
+Threshold = 0.0001
+
+
+def _complex_to_str(number: complex) -> str:
+    ret = ""
+    if number.real > Threshold:
+        ret += "{:0.3f}".format(number.real)
+    if number.imag > Threshold:
+        ret += "+{:0.3f}j".format(number.imag)
+    return ret
 
 
 class Qubit:
@@ -117,7 +127,7 @@ class Qubit:
         for i in range(2**self._n):
             if self.mat[i, 0]:
                 binary = str(bin(i))[2:]
-                ret += f"{self.mat[i,0]}|{binary.zfill(self._n)}>"
+                ret += f"{_complex_to_str(self.mat[i,0])}|{binary.zfill(self._n)}>"
                 ret += " + "
         return ret[:-3]
 
