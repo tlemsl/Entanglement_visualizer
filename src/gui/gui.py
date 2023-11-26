@@ -88,6 +88,7 @@ class QuantumGate(QComboBox):
         font = self.font()
         font.setPointSize(20)  # Change the font size here
         self.setFont(font)
+        self.is_active = False
 
     def handle_selection(self, index):
         ''''handle function when gate is selected on the box'''
@@ -99,6 +100,8 @@ class QuantumGate(QComboBox):
                     if (x == int(self.objectName()[4])
                             and y == int(self.objectName()[6])):
                         self.parent().gate_widget_list[to][y + 2].show()
+                        self.parent().gate_widget_list[to][y + 2].is_active = False
+                        self.is_active = False
                         del self.parent().control_draw_list[idx]
 
                         self.parent().QC.del_gate(to, y)
@@ -111,6 +114,7 @@ class QuantumGate(QComboBox):
                 self.handle_control()
             # IF X,Y,Z,H gate is choosen
             elif selected_item in ["X", "Y", "Z", "H"]:
+                self.is_active = True
                 if selected_item == "X":
                     self.parent().QC.add_gate(
                         int(self.objectName()[4]), int(self.objectName()[6]),
@@ -130,6 +134,7 @@ class QuantumGate(QComboBox):
             else:
                 self.parent().QC.del_gate(int(self.objectName()[4]),
                                           int(self.objectName()[6]))
+                self.is_active = False
 
             self.parent().update()
 
@@ -138,6 +143,12 @@ class QuantumGate(QComboBox):
         '''handle function for control gate'''
         dialog = TwoInputDialog()
         dialog.exec_()
+        if not dialog.return_value2.isnumeric() or (int(dialog.return_value2) >= QUBIT_NUM) or int(dialog.return_value2)==int(self.objectName()[4]):
+            QMessageBox.warning(self, 'Warning', 'Please check your input', QMessageBox.Ok)
+            self.setCurrentIndex(0)
+            return None
+
+
         self.parent().control_draw_list.append([
             dialog.return_value1,
             int(self.objectName()[4]),
@@ -145,6 +156,8 @@ class QuantumGate(QComboBox):
             int(dialog.return_value2)
         ])
         self.is_control = True
+        self.is_active = True
+        self.parent().gate_widget_list[int(dialog.return_value2)][int(self.objectName()[6])+2].is_active = True
         if dialog.return_value1 == "X":
             self.parent().QC.add_gate(
                 int(dialog.return_value2), int(self.objectName()[6]),
@@ -384,10 +397,15 @@ class WindowClass(QMainWindow, form_class):
         if QUBIT_NUM <= 1:
             QMessageBox.warning(self, 'Error', 'There is no Qubit to delete', QMessageBox.Ok)
             return None
-
+        for tmp_gate in self.gate_widget_list[-1][2:]:
+            if tmp_gate.is_active:
+                QMessageBox.warning(self, 'Error', 'Please delete gate first', QMessageBox.Ok)
+                return None
        
 
         QUBIT_NUM -= 1
+
+
         for i in self.gate_widget_list[-1]:
             i.deleteLater()
         self.gate_widget_list = self.gate_widget_list[0:-1]
