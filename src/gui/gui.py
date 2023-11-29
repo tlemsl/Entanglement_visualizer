@@ -299,8 +299,23 @@ class WindowClass(QMainWindow, form_class):
             QColor(0, 255, 0),  # Green
             QColor(0, 0, 255),  # Blue
             QColor(255, 255, 0),  # Yellow
-            QColor(255, 0, 255),  # Magenta
-            QColor(0, 255, 255)  # Cyan
+            QColor(128, 0, 128),  # 자주
+            QColor(135, 206, 235),  # 하늘색
+            QColor(255, 165, 0),  # 주황
+            QColor(0, 128, 0),  # 초록
+            QColor(255, 192, 203),  # 분홍
+            QColor(0, 0, 128),  # 푸른색
+            QColor(165, 42, 42),  # 갈색 
+            QColor(173, 255, 47),  # 연두
+            QColor(128, 128, 128),  # 회색
+            QColor(128, 0, 128),  # 보라색
+            QColor(0, 0, 128),  # 남색
+            QColor(192, 192, 192),  # 은색
+            QColor(205, 133, 63),  # 황토색
+            QColor(255, 192, 203)  # 핑크색
+
+            
+
         ]
         qubit_colors = [-1 for i in range(QUBIT_NUM)]
 
