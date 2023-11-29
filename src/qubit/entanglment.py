@@ -209,12 +209,15 @@ def _calculate_proportional_value(list1, list2):
     Returns:
         complex: Proportional value or infinity if not proportional.
     """
-    if abs(list2[0]) > Threshold:
-        return complex(list1[0] / list2[0])
-    elif abs(list1[0]) < Threshold:
-        return complex(1)
-    else:
-        return complex(math.inf)
+    for x, y in zip (list1, list2):
+        if abs(x) < Threshold and abs(y) < Threshold:
+            continue
+        if abs(y) > Threshold:
+            return complex(list1[0] / list2[0])
+        elif abs(x) < Threshold:
+            return complex(1)
+        else:
+            return complex(math.inf)
 
 
 def _is_proportional(v1, v2, val):
@@ -228,7 +231,9 @@ def _is_proportional(v1, v2, val):
     Returns:
         bool: True if proportional, False otherwise.
     """
-    if abs(v2) > Threshold:
+    if abs(v2) < Threshold and abs(v1) < Threshold:
+        return True
+    elif abs(v2) > Threshold:
         temp = complex(v1 / v2)
     elif abs(v1) < Threshold:
         temp = complex(1)
