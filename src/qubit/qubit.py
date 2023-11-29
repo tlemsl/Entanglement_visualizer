@@ -20,10 +20,15 @@ Threshold = 0.0001
 
 def _complex_to_str(number: complex) -> str:
     ret = ""
-    if number.real > Threshold:
+    if abs(number.real) > Threshold:
         ret += "{:0.3f}".format(number.real)
-    if number.imag > Threshold:
-        ret += "+{:0.3f}j".format(number.imag)
+        if number.imag > Threshold:
+            ret = "(" + ret + "+{:0.3f}j)".format(number.imag)
+        elif number.imag < -Threshold:
+            ret = "(" + ret + "{:0.3f}j)".format(number.imag)
+    else:
+        ret = "{:0.3f}j".format(number.imag)
+    
     return ret
 
 
